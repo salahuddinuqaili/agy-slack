@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "agy-slack": {
+      "command": "npx",
+      "args": ["-y", "github:salahuddinuqaili/agy-slack"],
+      "env": {
+        "SLACK_USER_TOKEN": "xoxp-your-user-token",
+        "SLACK_MCP_MODE": "confirm"
+      }
+    }
+  }
+}
