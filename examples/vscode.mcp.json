@@ -1,0 +1,28 @@
+{
+  "inputs": [
+    {
+      "type": "promptString",
+      "id": "slack_user_token",
+      "description": "Slack user token (xoxp-). Required for search and DMs.",
+      "password": true
+    },
+    {
+      "type": "promptString",
+      "id": "slack_bot_token",
+      "description": "Optional Slack bot token (xoxb-). Leave empty if unused.",
+      "password": true
+    }
+  ],
+  "servers": {
+    "agy-slack": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "github:salahuddinuqaili/agy-slack"],
+      "env": {
+        "SLACK_MCP_MODE": "confirm",
+        "SLACK_USER_TOKEN": "${input:slack_user_token}",
+        "SLACK_BOT_TOKEN": "${input:slack_bot_token}"
+      }
+    }
+  }
+}

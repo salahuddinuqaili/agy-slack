@@ -7,6 +7,10 @@ import {
   geminiEntry,
   geminiHttpEntry,
   geminiMcpAddCommand,
+  vscodeDocument,
+  vscodeEntry,
+  vscodeHttpEntry,
+  vscodeEditorUserPath,
   GEMINI_EXTENSION_INSTALL,
   GEMINI_SLASH_COMMANDS,
   packageRoot,
@@ -105,5 +109,31 @@ describe("install", () => {
       assert.match(body, /prompt\s*=/);
       assert.match(body, /description\s*=/);
     }
+  });
+
+  it("emits a VS Code mcp.json with servers + inputs, not mcpServers", () => {
+    const doc = vscodeDocument({ client: "vscode", mode: "confirm" });
+    const servers = doc.servers as Record<string, ReturnType<typeof vscodeEntry>>;
+    const entry = servers["agy-slack"];
+    assert.equal(entry.type, "stdio");
+    assert.equal(entry.command, "npx");
+    assert.equal(entry.env.SLACK_USER_TOKEN, "${input:slack_user_token}");
+    assert.ok(Array.isArray(doc.inputs));
+    const json = snippetFor("vscode", { client: "vscode" });
+    assert.match(json, /"servers"/);
+    assert.doesNotMatch(json, /mcpServers/);
+    assert.doesNotMatch(json, /httpUrl/);
+    assert.doesNotMatch(json, /serverUrl/);
+    const http = vscodeHttpEntry();
+    assert.equal(http.type, "http");
+    assert.equal(http.url, "http://127.0.0.1:8787/mcp");
+    assert.ok(vscodeEditorUserPath().endsWith("mcp.json"));
+  });
+
+  it("skips VS Code input prompts in demo mode", () => {
+    const doc = vscodeDocument({ client: "vscode", demo: true });
+    const servers = doc.servers as Record<string, ReturnType<typeof vscodeEntry>>;
+    assert.equal(servers["agy-slack"].env.SLACK_MCP_DEMO, "1");
+    assert.equal("inputs" in doc, false);
   });
 });

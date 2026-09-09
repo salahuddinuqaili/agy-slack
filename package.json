@@ -1,7 +1,7 @@
 {
   "name": "agy-slack",
-  "version": "1.2.0",
-  "description": "Slack MCP for Google Antigravity CLI and Gemini CLI v0.59. Install as a Gemini extension, names not IDs, confirm before send.",
+  "version": "1.3.0",
+  "description": "Slack MCP for Antigravity CLI, Gemini CLI v0.59, and VS Code Copilot. Names not IDs, confirm before send.",
   "type": "module",
   "license": "MIT",
   "author": "Salahuddin Uqaili",
@@ -22,7 +22,9 @@
     "cli",
     "ai-agent",
     "google-antigravity",
-    "google-gemini-cli"
+    "google-gemini-cli",
+    "vscode",
+    "github-copilot"
   ],
   "bin": {
     "agy-slack": "./dist/index.js",

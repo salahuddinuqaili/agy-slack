@@ -151,6 +151,28 @@ gemini mcp add -s user \
 
 ---
 
+## VS Code + Copilot — step by step
+
+VS Code is **not** Cursor. Root key is `servers`, HTTP is `{ "type": "http", "url" }`, secrets are `${input:…}`. MCP tools only run in Copilot **Agent** mode.
+
+### 1. Install
+
+```bash
+npx github:salahuddinuqaili/agy-slack install --client vscode
+```
+
+### 2. Start
+
+Command Palette → **MCP: List Servers** → Start **agy-slack**. Trust it. Paste the `xoxp-` token when prompted (stored by VS Code, not in the JSON).
+
+### 3. Agent mode
+
+Open Copilot Chat → mode dropdown → **Agent**. Ask: *Catch me up on #eng from this morning.*
+
+Project-only: `install --client vscode --workspace .` writes `.vscode/mcp.json`. Full notes: [docs/VSCODE.md](docs/VSCODE.md). Example: [`examples/vscode.mcp.json`](examples/vscode.mcp.json).
+
+---
+
 Verify the install:
 
 ```bash
@@ -281,9 +303,8 @@ Antigravity CLI reads `~/.gemini/config/mcp_config.json` (and workspace `.agents
 
 ## Other clients
 
-Claude, Cursor, or everything at once:
-
 ```bash
+npx github:salahuddinuqaili/agy-slack install --client vscode
 npx github:salahuddinuqaili/agy-slack install --client claude
 npx github:salahuddinuqaili/agy-slack install --client cursor
 npx github:salahuddinuqaili/agy-slack install --client all

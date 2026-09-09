@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.3.0 — 2026-09-09
+
+- VS Code + Copilot Agent Host: `install --client vscode`.
+- Writes `servers` (not `mcpServers`) to `Code/User/mcp.json`, `~/.copilot/mcp-config.json`, and `.vscode/mcp.json`.
+- Slack token via `inputs` + `${input:slack_user_token}` — never plaintext in the file.
+- HTTP is `{ "type": "http", "url" }`, not Gemini's `httpUrl` or Antigravity's `serverUrl`.
+- Docs: [docs/VSCODE.md](docs/VSCODE.md). Tools only run in Copilot **Agent** mode.
+
 ## 1.2.0 — 2026-09-09
 
 - Gemini CLI v0.59 numbered install: version check → token → extension → trust → `/mcp` → first prompt.

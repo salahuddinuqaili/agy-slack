@@ -80,8 +80,8 @@ async function runDoctor(argv: string[]) {
 async function runInstall(argv: string[]) {
   const flags = parseFlags(argv);
   const client = (flags.client as ClientId) || "antigravity";
-  if (!["antigravity", "gemini", "claude", "cursor", "all"].includes(client)) {
-    throw new Error(`Unknown client ${client}. Use antigravity | gemini | claude | cursor | all.`);
+  if (!["antigravity", "gemini", "vscode", "claude", "cursor", "all"].includes(client)) {
+    throw new Error(`Unknown client ${client}. Use antigravity | gemini | vscode | claude | cursor | all.`);
   }
   const result = await installClient({
     client,
@@ -99,7 +99,7 @@ async function runInstall(argv: string[]) {
 
 function runSnippet(argv: string[]) {
   const flags = parseFlags(argv);
-  const client = (flags.client as "antigravity" | "gemini" | "claude" | "cursor") || "antigravity";
+  const client = (flags.client as "antigravity" | "gemini" | "vscode" | "claude" | "cursor") || "antigravity";
   process.stdout.write(
     `${snippetFor(client, {
       client,
@@ -147,20 +147,21 @@ function parseFlags(argv: string[]) {
 
 function printHelp() {
   process.stdout.write(`agy-slack ${SERVER_VERSION}
-Slack MCP for Google Antigravity CLI and Gemini CLI v0.59.
+Slack MCP for Google Antigravity CLI, Gemini CLI v0.59, and VS Code Copilot.
 
 Usage
   npx github:salahuddinuqaili/agy-slack install --client antigravity
   npx github:salahuddinuqaili/agy-slack install --client gemini
+  npx github:salahuddinuqaili/agy-slack install --client vscode
   npx github:salahuddinuqaili/agy-slack doctor
   npx github:salahuddinuqaili/agy-slack demo
 
 Commands
   serve       Start MCP (stdio default; --http --port 8787)
-  install     Write Antigravity / Gemini / Claude / Cursor config
+  install     Write Antigravity / Gemini / VS Code / Claude / Cursor config
   doctor      Check tokens, scopes, mode
   demo        Serve the Northstar demo workspace (no Slack token)
-  snippet     Print a config JSON blob (--client gemini|antigravity|…)
+  snippet     Print a config JSON blob (--client vscode|gemini|antigravity|…)
   help        This text
 
 Environment
@@ -183,6 +184,13 @@ Gemini CLI v0.59
   Commands:   /slack:catchup  /slack:standup  /slack:search  /slack:draft  /slack:who
   Reload:     /mcp   or   gemini mcp list
   Settings:   gemini mcp add -s user -e SLACK_USER_TOKEN=$SLACK_USER_TOKEN --timeout 60000 agy-slack npx -- -y github:salahuddinuqaili/agy-slack
+
+VS Code + Copilot
+  Config:   .vscode/mcp.json   and   ~/.copilot/mcp-config.json
+  Root key: servers   (not mcpServers)
+  HTTP:     { "type": "http", "url": "http://127.0.0.1:8787/mcp" }
+  Secrets:  inputs + \${input:slack_user_token}  (prompted, stored by VS Code)
+  Reload:   Command Palette → MCP: List Servers → Start. Copilot Chat in Agent mode.
 
 Docs  https://github.com/salahuddinuqaili/agy-slack
 `);

@@ -1,7 +1,7 @@
 import type { ToolDef } from "./types";
 
 export const SERVER_NAME = "agy-slack";
-export const SERVER_VERSION = "1.2.0";
+export const SERVER_VERSION = "1.3.0";
 
 export const TOOLS: ToolDef[] = [
   {

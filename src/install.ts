@@ -4,7 +4,7 @@ import { homedir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-export const CLIENTS = ["antigravity", "gemini", "claude", "cursor", "all"] as const;
+export const CLIENTS = ["antigravity", "gemini", "vscode", "claude", "cursor", "all"] as const;
 export type ClientId = (typeof CLIENTS)[number];
 export type ConcreteClient = Exclude<ClientId, "all">;
 
@@ -91,6 +91,82 @@ export function geminiHttpEntry(url = "http://127.0.0.1:8787/mcp") {
   };
 }
 
+/**
+ * VS Code / Copilot Agent Host (1.102+).
+ * - Root key is `servers`, not `mcpServers`.
+ * - HTTP is `{ type: "http", url }` — not httpUrl / serverUrl.
+ * - Secrets go in `inputs` + `${input:id}`, never plaintext in the file.
+ * - Tools run in Copilot **Agent** mode, not Ask.
+ */
+export function vscodeEntry(opts: InstallOptions) {
+  const { command, args } = launcherCommand();
+  const env: Record<string, string> = {
+    SLACK_MCP_MODE: opts.mode || "confirm",
+  };
+  if (opts.demo) {
+    env.SLACK_MCP_DEMO = "1";
+  } else {
+    env.SLACK_USER_TOKEN = opts.userToken || "${input:slack_user_token}";
+    env.SLACK_BOT_TOKEN = opts.botToken || "${input:slack_bot_token}";
+  }
+  return {
+    type: "stdio" as const,
+    command,
+    args,
+    env,
+  };
+}
+
+export function vscodeHttpEntry(url = "http://127.0.0.1:8787/mcp") {
+  return {
+    type: "http" as const,
+    url,
+  };
+}
+
+export function vscodeInputs(): Array<Record<string, unknown>> {
+  return [
+    {
+      type: "promptString",
+      id: "slack_user_token",
+      description: "Slack user token (xoxp-). Required for search and DMs.",
+      password: true,
+    },
+    {
+      type: "promptString",
+      id: "slack_bot_token",
+      description: "Optional Slack bot token (xoxb-). Leave empty if unused.",
+      password: true,
+    },
+  ];
+}
+
+export function vscodeDocument(opts: InstallOptions): Record<string, unknown> {
+  const doc: Record<string, unknown> = {
+    servers: { "agy-slack": vscodeEntry(opts) },
+  };
+  if (!opts.demo) doc.inputs = vscodeInputs();
+  return doc;
+}
+
+/** Editor user mcp.json (MCP: Open User Configuration). */
+export function vscodeEditorUserPath(): string {
+  if (process.platform === "darwin") {
+    return join(homedir(), "Library", "Application Support", "Code", "User", "mcp.json");
+  }
+  if (process.platform === "win32") {
+    const roaming = process.env.APPDATA || join(homedir(), "AppData", "Roaming");
+    return join(roaming, "Code", "User", "mcp.json");
+  }
+  const xdg = process.env.XDG_CONFIG_HOME || join(homedir(), ".config");
+  return join(xdg, "Code", "User", "mcp.json");
+}
+
+/** Copilot Agent Host native config — portable across VS Code and Copilot. */
+export function vscodeCopilotUserPath(): string {
+  return join(homedir(), ".copilot", "mcp-config.json");
+}
+
 export function geminiMcpAddCommand(opts: InstallOptions): string {
   const envFlags = [
     `-e SLACK_MCP_MODE=${opts.mode || "confirm"}`,
@@ -109,7 +185,7 @@ export async function installClient(opts: InstallOptions): Promise<InstallResult
   const hints: string[] = [];
   const stdio = antigravityEntry(opts);
   const clients: ConcreteClient[] =
-    opts.client === "all" ? ["antigravity", "gemini", "claude", "cursor"] : [opts.client];
+    opts.client === "all" ? ["antigravity", "gemini", "vscode", "claude", "cursor"] : [opts.client];
 
   for (const client of clients) {
     if (client === "antigravity") {
@@ -156,6 +232,25 @@ export async function installClient(opts: InstallOptions): Promise<InstallResult
       hints.push(`Settings-only add: ${geminiMcpAddCommand(opts)}`);
     }
 
+    if (client === "vscode") {
+      const editorPath = vscodeEditorUserPath();
+      const copilotPath = vscodeCopilotUserPath();
+      await mergeVscodeFile(editorPath, opts);
+      await mergeVscodeFile(copilotPath, opts);
+      files.push(editorPath, copilotPath);
+      if (opts.workspace) {
+        const ws = join(opts.workspace, ".vscode", "mcp.json");
+        const portable = join(opts.workspace, ".mcp.json");
+        await mergeVscodeFile(ws, opts);
+        await mergeVscodeFile(portable, opts);
+        files.push(ws, portable);
+      }
+      hints.push("VS Code: Command Palette → MCP: List Servers → Start agy-slack. Trust when asked.");
+      hints.push("Copilot Chat must be in Agent mode — MCP tools do not run in Ask mode.");
+      hints.push("Token is prompted on first start (${input:slack_user_token}), stored by VS Code. Do not paste xoxp- into mcp.json.");
+      hints.push("HTTP uses { type: \"http\", url } — not httpUrl or serverUrl. Root key is servers, not mcpServers.");
+    }
+
     if (client === "claude") {
       const path = join(homedir(), ".claude.json");
       await mergeServer(path, "agy-slack", stdio);
@@ -184,6 +279,28 @@ export async function installGeminiCommands(destDir: string): Promise<string[]> 
     written.push(dest);
   }
   return written;
+}
+
+async function mergeVscodeFile(path: string, opts: InstallOptions) {
+  const current = await readJson(path);
+  const servers = {
+    ...((current.servers as Record<string, unknown> | undefined) ?? {}),
+    "agy-slack": vscodeEntry(opts),
+  };
+  const next: Record<string, unknown> = { ...current, servers };
+  if (!opts.demo) {
+    const existing = Array.isArray(current.inputs)
+      ? (current.inputs as Array<{ id?: string }>)
+      : [];
+    const byId = new Map(existing.filter((i) => i.id).map((i) => [i.id as string, i]));
+    for (const input of vscodeInputs()) {
+      const id = input.id as string;
+      if (!byId.has(id)) byId.set(id, input);
+    }
+    next.inputs = [...byId.values()];
+  }
+  await mkdir(dirname(path), { recursive: true });
+  await writeFile(path, `${JSON.stringify(next, null, 2)}\n`, "utf8");
 }
 
 async function mergeServer(
@@ -218,6 +335,9 @@ export function snippetFor(
 ): string {
   if (client === "gemini") {
     return JSON.stringify({ mcpServers: { "agy-slack": geminiEntry(opts) } }, null, 2);
+  }
+  if (client === "vscode") {
+    return JSON.stringify(vscodeDocument(opts), null, 2);
   }
   const entry = antigravityEntry(opts);
   return JSON.stringify({ mcpServers: { "agy-slack": entry } }, null, 2);
