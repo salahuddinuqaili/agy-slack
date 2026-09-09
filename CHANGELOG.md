@@ -2,6 +2,8 @@
 
 ## 1.2.0 — 2026-09-09
 
+- Gemini CLI v0.59 numbered install: version check → token → extension → trust → `/mcp` → first prompt.
+
 - Gemini CLI extension: `gemini extensions install https://github.com/salahuddinuqaili/agy-slack`.
 - `GEMINI.md` session context (routing table, names-not-IDs, confirm-before-send).
 - Slash commands: `/slack:catchup`, `/slack:standup`, `/slack:search`, `/slack:draft`, `/slack:who`.

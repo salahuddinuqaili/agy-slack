@@ -19,7 +19,25 @@ Antigravity CLI.
 
 Copying an Antigravity snippet into Gemini CLI will not load the server.
 
-## Preferred: Gemini extension
+## Installation (v0.59)
+
+### 1. Confirm the CLI
+
+```bash
+gemini --version
+```
+
+Need **0.59.0 or newer**. Install from [google-gemini/gemini-cli](https://github.com/google-gemini/gemini-cli).
+
+### 2. Create a Slack user token
+
+At [api.slack.com/apps](https://api.slack.com/apps) generate a user token (`xoxp-`).
+Search and DMs require it. A bot token (`xoxb-`) can post as the app but cannot search.
+
+Suggested user scopes: `search:read`, `channels:history`, `groups:history`,
+`im:history`, `mpim:history`, `channels:read`, `users:read`, `chat:write`.
+
+### 3. Install the Gemini extension (preferred)
 
 This is the path that matches how GitHub's own MCP ships for Gemini CLI.
 
@@ -27,8 +45,14 @@ This is the path that matches how GitHub's own MCP ships for Gemini CLI.
 gemini extensions install https://github.com/salahuddinuqaili/agy-slack
 ```
 
-Gemini prompts for the user token (keychain), loads `GEMINI.md` as session
-context, and registers slash commands:
+Gemini prompts for `SLACK_USER_TOKEN` (keychain), loads `GEMINI.md` as session
+context, and registers slash commands. Leave safety mode as `confirm`.
+
+If the extension is installed but disabled:
+
+```bash
+gemini extensions enable agy-slack
+```
 
 | Command | What it does |
 |---|---|
@@ -38,19 +62,40 @@ context, and registers slash commands:
 | `/slack:draft …` | Read a permalink, draft a reply. |
 | `/slack:who` | Identity, token kind, safety mode. |
 
-Then:
-
-1. Restart Gemini CLI, or type `/mcp`.
-2. If v0.59 asks you to trust the folder, do it. Untrusted workspaces **fail closed** and filter `mcpServers` (see [google-gemini/gemini-cli#29099](https://github.com/google-gemini/gemini-cli/pull/29099)).
-3. `gemini mcp list` should show `agy-slack` as connected.
-4. Ask: *Catch me up on #eng from this morning.* or type `/slack:catchup`.
-
 The extension declares every env var Gemini will pass (`SLACK_USER_TOKEN` is
 `sensitive: true`). Undeclared `*TOKEN*` process env is redacted.
 
-## Settings.json path
+### 4. Trust the folder
 
-If you would rather not use extensions:
+v0.59 **fails closed** on untrusted workspaces and filters `mcpServers`
+(see [google-gemini/gemini-cli#29099](https://github.com/google-gemini/gemini-cli/pull/29099)).
+When Gemini asks to trust this folder, accept. Otherwise the server shows as
+Disconnected.
+
+### 5. Reload and verify
+
+Restart Gemini CLI, or type `/mcp` in the TUI:
+
+```bash
+gemini mcp list
+```
+
+You should see `agy-slack` connected. The name is hyphenated on purpose —
+`agy_slack` breaks Gemini’s `mcp_{server}_{tool}` policy parser.
+
+### 6. First prompt
+
+```
+Catch me up on #eng from this morning.
+```
+
+or `/slack:catchup`. A send is previewed. Confirm in Gemini’s tool gate, then
+again with `confirm=true`. That double gate is intentional.
+
+## Without the extension
+
+Same server, no session context or slash commands. Writes
+`~/.gemini/settings.json` (user) or `.gemini/settings.json` (project).
 
 ```bash
 export SLACK_USER_TOKEN=xoxp-...

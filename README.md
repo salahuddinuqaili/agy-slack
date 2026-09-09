@@ -78,6 +78,79 @@ npx github:salahuddinuqaili/agy-slack \
 
 User token (`xoxp-`) is strongly recommended so search and DMs work. Bot token (`xoxb-`) is enough to post as the app in channels it has joined.
 
+---
+
+## Gemini CLI v0.59 — step by step
+
+Gemini CLI is **not** Antigravity. It reads `~/.gemini/settings.json`. HTTP is **`httpUrl`**. Copying an Antigravity snippet will not load the server.
+
+### 1. Confirm the CLI
+
+```bash
+gemini --version
+```
+
+Need **0.59.0 or newer**. Install from [google-gemini/gemini-cli](https://github.com/google-gemini/gemini-cli) if missing.
+
+### 2. Create a Slack user token
+
+At [api.slack.com/apps](https://api.slack.com/apps) generate a user token (`xoxp-`). Search and DMs require it. Suggested scopes: `search:read`, `channels:history`, `groups:history`, `im:history`, `mpim:history`, `channels:read`, `users:read`, `chat:write`.
+
+### 3. Install the Gemini extension (preferred)
+
+```bash
+gemini extensions install https://github.com/salahuddinuqaili/agy-slack
+```
+
+Paste `SLACK_USER_TOKEN` when prompted (keychain). Leave safety mode as `confirm`. If the extension is disabled:
+
+```bash
+gemini extensions enable agy-slack
+```
+
+### 4. Trust the folder
+
+v0.59 fails closed on untrusted workspaces and **filters `mcpServers`**. Accept the trust prompt or the server shows as Disconnected.
+
+### 5. Reload and verify
+
+Restart Gemini, or type `/mcp` in the TUI:
+
+```bash
+gemini mcp list
+```
+
+You should see `agy-slack` connected. The name is hyphenated on purpose (`agy_slack` breaks Gemini’s tool policy parser).
+
+### 6. First prompt
+
+```
+Catch me up on #eng from this morning.
+```
+
+Or slash commands: `/slack:catchup` · `/slack:standup` · `/slack:search` · `/slack:draft` · `/slack:who`.
+
+A send is previewed. Confirm in Gemini’s tool gate, then again with `confirm=true`.
+
+### Without the extension
+
+```bash
+export SLACK_USER_TOKEN=xoxp-...
+npx github:salahuddinuqaili/agy-slack install --client gemini
+```
+
+```bash
+gemini mcp add -s user \
+  -e SLACK_USER_TOKEN=$SLACK_USER_TOKEN \
+  -e SLACK_MCP_MODE=confirm \
+  --timeout 60000 \
+  agy-slack npx -- -y github:salahuddinuqaili/agy-slack
+```
+
+`--` is required so `-y` goes to `npx`. Full notes: [docs/GEMINI.md](docs/GEMINI.md).
+
+---
+
 Verify the install:
 
 ```bash
@@ -208,27 +281,7 @@ Antigravity CLI reads `~/.gemini/config/mcp_config.json` (and workspace `.agents
 
 ## Other clients
 
-Gemini CLI v0.59 — **install as an extension** (session context + `/slack:catchup`):
-
-```bash
-gemini extensions install https://github.com/salahuddinuqaili/agy-slack
-```
-
-Settings-only (no extension context):
-
-```bash
-npx github:salahuddinuqaili/agy-slack install --client gemini
-```
-
-```bash
-gemini mcp add -s user \
-  -e SLACK_USER_TOKEN=$SLACK_USER_TOKEN \
-  -e SLACK_MCP_MODE=confirm \
-  --timeout 60000 \
-  agy-slack npx -- -y github:salahuddinuqaili/agy-slack
-```
-
-Full Gemini notes — extension vs settings.json, `httpUrl` vs `serverUrl`, workspace trust, `excludeTools`: [docs/GEMINI.md](docs/GEMINI.md).
+Claude, Cursor, or everything at once:
 
 ```bash
 npx github:salahuddinuqaili/agy-slack install --client claude
