@@ -1,7 +1,7 @@
 import type { ToolDef } from "./types";
 
 export const SERVER_NAME = "agy-slack";
-export const SERVER_VERSION = "1.1.0";
+export const SERVER_VERSION = "1.2.0";
 
 export const TOOLS: ToolDef[] = [
   {
@@ -421,7 +421,7 @@ Write Slack-flavored text: *bold*, _italic_, \`code\`, <url|label>, <@U123> or @
     group: "meta",
     write: false,
     description:
-      "Diagnose this MCP: token kind, missing scopes, search availability, safety mode, channel allow/deny lists, and Antigravity config hints. Use when something fails or at install time.",
+      "Diagnose this MCP: token kind, missing scopes, search availability, safety mode, channel allow/deny lists, and Gemini/Antigravity config hints. Use when something fails or at install time.",
     args: [],
   },
 ];

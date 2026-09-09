@@ -1,0 +1,7 @@
+description = "Show the authenticated Slack identity, token kind, and safety mode."
+
+prompt = """
+Call slack_whoami, then slack_doctor if anything looks off.
+Summarise: who I am, which workspace, bot vs user token, whether search works,
+and the current safety mode. Do not send.
+"""

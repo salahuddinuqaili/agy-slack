@@ -177,10 +177,12 @@ Antigravity CLI
   Reload:   /mcp
 
 Gemini CLI v0.59
-  Config:   ~/.gemini/settings.json   (project: .gemini/settings.json)
-  HTTP key: httpUrl
-  Reload:   /mcp   or   gemini mcp list
-  Native:   gemini mcp add -s user -e SLACK_USER_TOKEN=$SLACK_USER_TOKEN --timeout 60000 agy-slack npx -- -y github:salahuddinuqaili/agy-slack
+  Preferred:  gemini extensions install https://github.com/salahuddinuqaili/agy-slack
+  Config:     ~/.gemini/settings.json   (project: .gemini/settings.json)
+  HTTP key:   httpUrl
+  Commands:   /slack:catchup  /slack:standup  /slack:search  /slack:draft  /slack:who
+  Reload:     /mcp   or   gemini mcp list
+  Settings:   gemini mcp add -s user -e SLACK_USER_TOKEN=$SLACK_USER_TOKEN --timeout 60000 agy-slack npx -- -y github:salahuddinuqaili/agy-slack
 
 Docs  https://github.com/salahuddinuqaili/agy-slack
 `);

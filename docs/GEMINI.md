@@ -14,12 +14,43 @@ Antigravity CLI.
 | SSE | `url` | n/a |
 | Tool confirm | `trust: false` (default) | Ask mode |
 | Env expansion | `$VAR` / `${VAR}` | literal values |
-| Reload | `/mcp` or `gemini mcp list` | `/mcp` |
+| Extension | `gemini extensions install <repo>` | n/a |
+| Slash commands | `/slack:catchup` etc. | n/a |
 
 Copying an Antigravity snippet into Gemini CLI will not load the server.
-The installer writes the right file.
 
-## Fastest path
+## Preferred: Gemini extension
+
+This is the path that matches how GitHub's own MCP ships for Gemini CLI.
+
+```bash
+gemini extensions install https://github.com/salahuddinuqaili/agy-slack
+```
+
+Gemini prompts for the user token (keychain), loads `GEMINI.md` as session
+context, and registers slash commands:
+
+| Command | What it does |
+|---|---|
+| `/slack:catchup` | Unreads + mentions. Does not send. |
+| `/slack:standup` | Yesterday / today / blockers. |
+| `/slack:search …` | Search, then quote the thread. |
+| `/slack:draft …` | Read a permalink, draft a reply. |
+| `/slack:who` | Identity, token kind, safety mode. |
+
+Then:
+
+1. Restart Gemini CLI, or type `/mcp`.
+2. If v0.59 asks you to trust the folder, do it. Untrusted workspaces **fail closed** and filter `mcpServers` (see [google-gemini/gemini-cli#29099](https://github.com/google-gemini/gemini-cli/pull/29099)).
+3. `gemini mcp list` should show `agy-slack` as connected.
+4. Ask: *Catch me up on #eng from this morning.* or type `/slack:catchup`.
+
+The extension declares every env var Gemini will pass (`SLACK_USER_TOKEN` is
+`sensitive: true`). Undeclared `*TOKEN*` process env is redacted.
+
+## Settings.json path
+
+If you would rather not use extensions:
 
 ```bash
 export SLACK_USER_TOKEN=xoxp-...
@@ -37,13 +68,7 @@ gemini mcp add -s user \
 ```
 
 `--` is required so `-y` is an argument to `npx`, not to `gemini mcp add`.
-
-Then:
-
-1. Restart Gemini CLI, or type `/mcp`.
-2. If v0.59 asks you to trust the folder, do it. Untrusted workspaces **fail closed** and filter `mcpServers` (see [google-gemini/gemini-cli#29099](https://github.com/google-gemini/gemini-cli/pull/29099)).
-3. `gemini mcp list` should show `agy-slack` as connected.
-4. Ask: *Catch me up on #eng from this morning.*
+Then `/mcp`. Trust the folder if asked.
 
 ## settings.json shape
 

@@ -1,0 +1,8 @@
+description = "Read a Slack thread and draft a reply in that channel's voice. Does not send."
+
+prompt = """
+Read this Slack thread and draft a reply: {{args}}
+
+Use slack_read on the permalink or channel. Match the channel's voice: calm,
+specific, no fluff. Show the draft. Do not send unless I explicitly ask.
+"""

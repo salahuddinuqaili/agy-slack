@@ -1,0 +1,15 @@
+description = "Draft yesterday / today / blockers from Slack. Does not send."
+
+prompt = """
+Draft my standup from Slack {{args}}.
+
+Use slack_unreads and slack_read since=yesterday on my home channel (default #eng)
+and DMs.
+
+Format:
+- yesterday
+- today
+- blockers
+
+Keep bullets short. Do not send.
+"""

@@ -1,11 +1,23 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile, readdir } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { homedir } from "node:os";
 import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 
 export const CLIENTS = ["antigravity", "gemini", "claude", "cursor", "all"] as const;
 export type ClientId = (typeof CLIENTS)[number];
 export type ConcreteClient = Exclude<ClientId, "all">;
+
+export const GEMINI_EXTENSION_INSTALL =
+  "gemini extensions install https://github.com/salahuddinuqaili/agy-slack";
+
+export const GEMINI_SLASH_COMMANDS = [
+  "catchup",
+  "standup",
+  "search",
+  "draft",
+  "who",
+] as const;
 
 export interface InstallOptions {
   client: ClientId;
@@ -28,6 +40,10 @@ export function launcherCommand(): { command: string; args: string[] } {
     command: "npx",
     args: ["-y", "github:salahuddinuqaili/agy-slack"],
   };
+}
+
+export function packageRoot(): string {
+  return dirname(dirname(fileURLToPath(import.meta.url)));
 }
 
 /** Stdio entry shared by Antigravity, Claude, Cursor. */
@@ -119,13 +135,25 @@ export async function installClient(opts: InstallOptions): Promise<InstallResult
       const userSettings = join(homedir(), ".gemini", "settings.json");
       await mergeServer(userSettings, "agy-slack", entry);
       files.push(userSettings);
+      const commandFiles = await installGeminiCommands(join(homedir(), ".gemini", "commands", "slack"));
+      files.push(...commandFiles);
       if (opts.workspace) {
         const ws = join(opts.workspace, ".gemini", "settings.json");
         await mergeServer(ws, "agy-slack", entry);
         files.push(ws);
+        const wsCmds = await installGeminiCommands(
+          join(opts.workspace, ".gemini", "commands", "slack"),
+        );
+        files.push(...wsCmds);
       }
-      hints.push("Gemini CLI v0.59: restart or type /mcp. Trust the folder if asked (fail-closed workspace trust).");
-      hints.push(`Native add: ${geminiMcpAddCommand(opts)}`);
+      hints.push(
+        "Preferred: " + GEMINI_EXTENSION_INSTALL + "  (GEMINI.md context, /slack:catchup, keychain token).",
+      );
+      hints.push(
+        "Gemini CLI v0.59: restart or type /mcp. Trust the folder if asked (fail-closed workspace trust).",
+      );
+      hints.push("Slash commands: /slack:catchup  /slack:standup  /slack:search  /slack:draft  /slack:who");
+      hints.push(`Settings-only add: ${geminiMcpAddCommand(opts)}`);
     }
 
     if (client === "claude") {
@@ -141,6 +169,21 @@ export async function installClient(opts: InstallOptions): Promise<InstallResult
   }
 
   return { files, command: stdio.command, args: stdio.args, hints };
+}
+
+export async function installGeminiCommands(destDir: string): Promise<string[]> {
+  const srcDir = join(packageRoot(), "commands", "slack");
+  if (!existsSync(srcDir)) return [];
+  await mkdir(destDir, { recursive: true });
+  const written: string[] = [];
+  for (const name of await readdir(srcDir)) {
+    if (!name.endsWith(".toml")) continue;
+    const dest = join(destDir, name);
+    const body = await readFile(join(srcDir, name), "utf8");
+    await writeFile(dest, body, "utf8");
+    written.push(dest);
+  }
+  return written;
 }
 
 async function mergeServer(

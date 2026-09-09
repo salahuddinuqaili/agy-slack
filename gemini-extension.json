@@ -1,0 +1,67 @@
+{
+  "name": "agy-slack",
+  "version": "1.2.0",
+  "description": "Slack with manners for Gemini CLI. Names not IDs, confirm before send, catch-up as a first-class command.",
+  "contextFileName": "GEMINI.md",
+  "mcpServers": {
+    "agy-slack": {
+      "command": "npx",
+      "args": ["-y", "${extensionPath}"],
+      "cwd": "${extensionPath}",
+      "timeout": 60000,
+      "env": {
+        "SLACK_USER_TOKEN": "$SLACK_USER_TOKEN",
+        "SLACK_BOT_TOKEN": "$SLACK_BOT_TOKEN",
+        "SLACK_MCP_MODE": "$SLACK_MCP_MODE",
+        "SLACK_MCP_TZ": "$SLACK_MCP_TZ",
+        "SLACK_MCP_DEMO": "$SLACK_MCP_DEMO",
+        "SLACK_MCP_ALLOW_CHANNELS": "$SLACK_MCP_ALLOW_CHANNELS",
+        "SLACK_MCP_DENY_CHANNELS": "$SLACK_MCP_DENY_CHANNELS"
+      }
+    }
+  },
+  "settings": [
+    {
+      "name": "Slack user token",
+      "description": "xoxp- user token. Required for search and DMs. Stored in the keychain.",
+      "envVar": "SLACK_USER_TOKEN",
+      "sensitive": true
+    },
+    {
+      "name": "Slack bot token",
+      "description": "Optional xoxb- bot token to post as the app.",
+      "envVar": "SLACK_BOT_TOKEN",
+      "sensitive": true
+    },
+    {
+      "name": "Safety mode",
+      "description": "readonly, confirm (default), or write.",
+      "envVar": "SLACK_MCP_MODE",
+      "sensitive": false
+    },
+    {
+      "name": "Timezone",
+      "description": "IANA timezone for today/4h, e.g. Europe/Berlin.",
+      "envVar": "SLACK_MCP_TZ",
+      "sensitive": false
+    },
+    {
+      "name": "Demo workspace",
+      "description": "Set to 1 to use the fictional Northstar workspace (no Slack token).",
+      "envVar": "SLACK_MCP_DEMO",
+      "sensitive": false
+    },
+    {
+      "name": "Allow channels",
+      "description": "Comma-separated allow list (#eng,@maya). Empty = all.",
+      "envVar": "SLACK_MCP_ALLOW_CHANNELS",
+      "sensitive": false
+    },
+    {
+      "name": "Deny channels",
+      "description": "Comma-separated deny list.",
+      "envVar": "SLACK_MCP_DENY_CHANNELS",
+      "sensitive": false
+    }
+  ]
+}

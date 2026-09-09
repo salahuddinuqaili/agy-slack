@@ -1,0 +1,15 @@
+description = "Catch up on Slack unreads and mentions. Does not send."
+
+prompt = """
+Catch me up on Slack {{args}}.
+
+Use slack_unreads first. Then slack_read on anything that looks like a decision,
+an incident, or a question aimed at me.
+
+Return:
+- what changed
+- who owns it
+- what I should reply to (drafts only)
+
+Do not send messages.
+"""

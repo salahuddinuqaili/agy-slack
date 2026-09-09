@@ -10,7 +10,7 @@ Names instead of IDs. Confirm before send. One command to install.
 
 ```bash
 npx github:salahuddinuqaili/agy-slack install --client antigravity
-npx github:salahuddinuqaili/agy-slack install --client gemini
+gemini extensions install https://github.com/salahuddinuqaili/agy-slack
 ```
 
 In Antigravity CLI type `/mcp`, reload, then:
@@ -26,7 +26,7 @@ That’s the whole product. Fifteen agent-native tools, not two hundred raw Slac
 <table>
 <tr>
 <td width="25%"><b>1. Antigravity</b><br/><code>agy</code>. Config: <code>mcp_config.json</code>.</td>
-<td width="25%"><b>2. Gemini CLI v0.59</b><br/><code>gemini</code>. Config: <code>settings.json</code>.</td>
+<td width="25%"><b>2. Gemini CLI v0.59</b><br/><code>gemini extensions install</code>.</td>
 <td width="25%"><b>3. Demo</b><br/>No token. Fictional Northstar workspace.</td>
 <td width="25%"><b>4. HTTP</b><br/>Field name depends on the client.</td>
 </tr>
@@ -45,12 +45,11 @@ Then `/mcp` → reload.
 <td>
 
 ```bash
-export SLACK_USER_TOKEN=xoxp-...
-npx github:salahuddinuqaili/agy-slack \
-  install --client gemini
+gemini extensions install \
+  https://github.com/salahuddinuqaili/agy-slack
 ```
 
-or `gemini mcp add` — [docs/GEMINI.md](docs/GEMINI.md).
+Then `/mcp`. Slash commands: `/slack:catchup`.
 
 </td>
 <td>
@@ -209,14 +208,17 @@ Antigravity CLI reads `~/.gemini/config/mcp_config.json` (and workspace `.agents
 
 ## Other clients
 
+Gemini CLI v0.59 — **install as an extension** (session context + `/slack:catchup`):
+
 ```bash
-npx github:salahuddinuqaili/agy-slack install --client gemini
-npx github:salahuddinuqaili/agy-slack install --client claude
-npx github:salahuddinuqaili/agy-slack install --client cursor
-npx github:salahuddinuqaili/agy-slack install --client all
+gemini extensions install https://github.com/salahuddinuqaili/agy-slack
 ```
 
-Gemini CLI v0.59 native add (hyphenated name, `$VAR` expansion, 60s timeout):
+Settings-only (no extension context):
+
+```bash
+npx github:salahuddinuqaili/agy-slack install --client gemini
+```
 
 ```bash
 gemini mcp add -s user \
@@ -226,7 +228,13 @@ gemini mcp add -s user \
   agy-slack npx -- -y github:salahuddinuqaili/agy-slack
 ```
 
-Full Gemini notes — `httpUrl` vs `serverUrl`, workspace trust, `excludeTools`: [docs/GEMINI.md](docs/GEMINI.md). Example: [`examples/gemini.settings.json`](examples/gemini.settings.json).
+Full Gemini notes — extension vs settings.json, `httpUrl` vs `serverUrl`, workspace trust, `excludeTools`: [docs/GEMINI.md](docs/GEMINI.md).
+
+```bash
+npx github:salahuddinuqaili/agy-slack install --client claude
+npx github:salahuddinuqaili/agy-slack install --client cursor
+npx github:salahuddinuqaili/agy-slack install --client all
+```
 
 SDK agents can attach the same process via `McpStdioServer` — see [`examples/sdk_agent.py`](examples/sdk_agent.py).
 

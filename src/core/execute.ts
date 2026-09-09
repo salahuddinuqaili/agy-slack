@@ -495,8 +495,12 @@ async function doctor(ctx: ExecuteContext): Promise<ToolResult> {
     );
   }
   if (ctx.config.mode === "write") {
-    lines.push("", "warn  SLACK_MCP_MODE=write sends without a preview. confirm is safer in Antigravity Ask mode.");
+    lines.push("", "warn  SLACK_MCP_MODE=write sends without a preview. confirm is safer with Gemini CLI trust:false and Antigravity Ask mode.");
   }
+  lines.push(
+    "",
+    "hint  Gemini CLI: `gemini extensions install https://github.com/salahuddinuqaili/agy-slack` then /mcp. Config is ~/.gemini/settings.json (httpUrl), not mcp_config.json.",
+  );
   return asOutput(ctx.config.output, lines.join("\n"), { auth, tokens, config: ctx.config });
 }
 

@@ -20,6 +20,13 @@ export function createServer(ctx: ExecuteContext): McpServer {
         title: tool.title,
         description: tool.description,
         inputSchema: argsToZod(tool.args),
+        annotations: {
+          title: tool.title,
+          readOnlyHint: !tool.write,
+          destructiveHint: tool.name === "slack_delete",
+          idempotentHint: !tool.write,
+          openWorldHint: true,
+        },
       },
       async (args) => {
         const result = await executeTool(tool.name, args as Record<string, unknown>, ctx);

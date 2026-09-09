@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.2.0 — 2026-09-09
+
+- Gemini CLI extension: `gemini extensions install https://github.com/salahuddinuqaili/agy-slack`.
+- `GEMINI.md` session context (routing table, names-not-IDs, confirm-before-send).
+- Slash commands: `/slack:catchup`, `/slack:standup`, `/slack:search`, `/slack:draft`, `/slack:who`.
+- `skills/slack-etiquette` for Gemini's skill loader.
+- Extension `settings[]` declare every env var Gemini will pass (user token is keychain-sensitive).
+- MCP tool annotations: `readOnlyHint` / `destructiveHint` / `openWorldHint`.
+- `install --client gemini` also writes `~/.gemini/commands/slack/*.toml`.
+
 ## 1.1.0 — 2026-09-09
 
 - 1,000-user resolution suite in CI (unicode, collisions, deleted, prefix traps).

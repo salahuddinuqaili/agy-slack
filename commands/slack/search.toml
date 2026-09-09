@@ -1,0 +1,10 @@
+description = "Search Slack and quote the winning thread. Does not send."
+
+prompt = """
+Search Slack for: {{args}}
+
+Use slack_search. Open the best hit with slack_read (thread if it has replies).
+Quote the decision or answer, the date, and who said it.
+If search is unavailable (bot token), say so and read likely channels instead.
+Do not send.
+"""
