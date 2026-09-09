@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "agy-slack": {
+      "command": "npx",
+      "args": ["-y", "github:salahuddinuqaili/agy-slack"],
+      "env": {
+        "SLACK_MCP_MODE": "confirm",
+        "SLACK_USER_TOKEN": "$SLACK_USER_TOKEN",
+        "SLACK_BOT_TOKEN": "$SLACK_BOT_TOKEN"
+      },
+      "timeout": 60000,
+      "trust": false
+    }
+  }
+}

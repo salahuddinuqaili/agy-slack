@@ -7,6 +7,7 @@ import type {
   SlackUser,
 } from "./types";
 import { slugifyChannel } from "./mrkdwn";
+import { findUser } from "./resolve";
 
 const TEAM = { id: "T0NORTHSTAR", name: "Northstar", domain: "northstar-labs" };
 
@@ -579,14 +580,8 @@ export class DemoAdapter implements SlackAdapter {
 
   private userMatches(userId: string | undefined, q: string) {
     if (!userId) return false;
-    const u = this.state.users.find((x) => x.id === userId);
-    const n = q.replace(/^@/, "").toLowerCase();
-    return Boolean(
-      u &&
-        (u.id === q ||
-          u.name.toLowerCase() === n ||
-          u.displayName.toLowerCase() === n),
-    );
+    const hit = findUser(this.state.users, q);
+    return hit?.id === userId;
   }
 }
 

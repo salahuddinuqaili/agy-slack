@@ -1,7 +1,8 @@
 import { TOOLS, getTool } from "./catalog";
 import type { ServerConfig, SlackAdapter, SlackChannel, ToolArgs, ToolResult } from "./types";
 import { parseExpiration, parseTimeRange } from "./time";
-import { resolveChannelRef } from "./resolve";
+import { resolveChannelRef, UserDirectory } from "./resolve";
+import type { SlackUser } from "./types";
 import {
   asOutput,
   channelLabel,
@@ -18,6 +19,7 @@ export interface ExecuteContext {
   adapter: SlackAdapter;
   config: ServerConfig;
   now?: Date;
+  directory?: UserDirectory;
 }
 
 export async function executeTool(
@@ -127,38 +129,20 @@ async function channels(args: ToolArgs, ctx: ExecuteContext): Promise<ToolResult
   return asOutput(ctx.config.output, formatChannelList(list, users), { channels: list });
 }
 
+async function directoryOf(ctx: ExecuteContext, users?: SlackUser[]): Promise<UserDirectory> {
+  if (ctx.directory) return ctx.directory;
+  ctx.directory = new UserDirectory(users ?? (await ctx.adapter.listUsers()));
+  return ctx.directory;
+}
+
 async function users(args: ToolArgs, ctx: ExecuteContext): Promise<ToolResult> {
   const query = str(args, "query");
   const limit = num(args, "limit", 20, 100);
-  const all = (await ctx.adapter.listUsers()).filter((u) => !u.deleted);
-  const matched = query
-    ? all
-        .map((u) => ({ u, hit: rankUser(u, query) }))
-        .filter((x) => x.hit > 0)
-        .sort((a, b) => b.hit - a.hit)
-        .map((x) => x.u)
-    : all;
+  const all = await ctx.adapter.listUsers();
+  const dir = await directoryOf(ctx, all);
+  const matched = query ? dir.search(query, { limit }).map((h) => h.user) : all.filter((u) => !u.deleted);
   const slice = matched.slice(0, limit);
   return asOutput(ctx.config.output, formatUsers(slice), { users: slice });
-}
-
-function rankUser(
-  u: { name: string; displayName: string; realName: string; email?: string; id: string },
-  query: string,
-): number {
-  const n = query.replace(/^@/, "").toLowerCase();
-  if (u.id === query) return 100;
-  if (u.name === n || u.displayName.toLowerCase() === n) return 90;
-  if ((u.email || "").toLowerCase().startsWith(n)) return 70;
-  if (u.realName.toLowerCase().startsWith(n)) return 60;
-  if (
-    u.name.includes(n) ||
-    u.displayName.toLowerCase().includes(n) ||
-    u.realName.toLowerCase().includes(n)
-  ) {
-    return 30;
-  }
-  return 0;
 }
 
 async function loadResolved(channelArg: string, ctx: ExecuteContext) {
@@ -166,7 +150,8 @@ async function loadResolved(channelArg: string, ctx: ExecuteContext) {
     ctx.adapter.listChannels(),
     ctx.adapter.listUsers(),
   ]);
-  const resolved = resolveChannelRef(channelArg, channels, users);
+  const dir = await directoryOf(ctx, users);
+  const resolved = resolveChannelRef(channelArg, channels, dir);
   if (resolved.channel.id.startsWith("pending-im:") && resolved.channel.user) {
     const dm = await ctx.adapter.openDm(resolved.channel.user);
     return { ...resolved, channel: dm, users, channels };

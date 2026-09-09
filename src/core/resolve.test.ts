@@ -1,6 +1,15 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { findUser, parsePermalink, resolveChannelRef, slackifyTs } from "./resolve";
+import {
+  AmbiguousRefError,
+  channelAllowed,
+  findUser,
+  fold,
+  parsePermalink,
+  requireUser,
+  resolveChannelRef,
+  slackifyTs,
+} from "./resolve";
 import { seedDemo } from "./demo";
 
 const { users, channels } = seedDemo(new Date("2026-09-09T13:11:00.000Z"));
@@ -41,5 +50,49 @@ describe("resolveChannelRef", () => {
   it("finds users by name", () => {
     const u = findUser(users, "Maya Chen");
     assert.equal(u?.id, "U0MAYA");
+  });
+
+  it("finds users by email local-part", () => {
+    assert.equal(findUser(users, "maya@northstar.example")?.id, "U0MAYA");
+  });
+
+  it("folds case and whitespace", () => {
+    assert.equal(requireUser(users, "  @MAYA  ").id, "U0MAYA");
+  });
+
+  it("does not resolve unknown people", () => {
+    assert.throws(() => requireUser(users, "@nobody"), /No user matching/);
+  });
+
+  it("throws AmbiguousRefError with candidates", () => {
+    const err = new AmbiguousRefError("Ambiguous user \"x\"", ["@a", "@b"]);
+    assert.equal(err.candidates.length, 2);
+  });
+});
+
+describe("fold", () => {
+  it("strips diacritics and leading @", () => {
+    assert.equal(fold("@José"), "jose");
+    assert.equal(fold("O'Brien"), "obrien");
+    assert.equal(fold("#Eng"), "eng");
+  });
+});
+
+describe("channelAllowed", () => {
+  const eng = channels.find((c) => c.id === "C0ENG")!;
+  const maya = channels.find((c) => c.id === "D0MAYA")!;
+
+  it("matches #eng on the allow list", () => {
+    assert.equal(channelAllowed(eng, ["#eng"], []).ok, true);
+    assert.equal(channelAllowed(eng, ["#incidents"], []).ok, false);
+  });
+
+  it("matches @maya on a DM allow list", () => {
+    assert.equal(channelAllowed(maya, ["@maya"], []).ok, true);
+    assert.equal(channelAllowed(maya, ["#eng"], []).ok, false);
+  });
+
+  it("denies listed channels", () => {
+    assert.equal(channelAllowed(eng, [], ["#eng"]).ok, false);
   });
 });

@@ -1,7 +1,8 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z, type ZodTypeAny } from "zod";
-import { TOOLS, SERVER_NAME, SERVER_VERSION, type ToolArg } from "./core/catalog";
+import { TOOLS, SERVER_NAME, SERVER_VERSION } from "./core/catalog";
+import type { ToolArg } from "./core/types";
 import { executeTool, type ExecuteContext } from "./core/execute";
 import { listPrompts, getPrompt } from "./core/prompts";
 import { formatChannelList, formatWhoami } from "./core/format";

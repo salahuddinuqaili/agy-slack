@@ -1,0 +1,47 @@
+name: Bug report
+description: Something in agy-slack did not do what the README promised.
+title: "[bug] "
+labels: ["bug"]
+body:
+  - type: dropdown
+    id: client
+    attributes:
+      label: Client
+      options:
+        - Antigravity CLI
+        - Antigravity SDK
+        - Claude
+        - Cursor
+        - HTTP / other
+    validations:
+      required: true
+  - type: dropdown
+    id: mode
+    attributes:
+      label: SLACK_MCP_MODE
+      options:
+        - confirm
+        - readonly
+        - write
+        - demo
+        - not sure
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: Include the tool name, the arguments, and the output. Redact tokens.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+    validations:
+      required: true
+  - type: input
+    id: doctor
+    attributes:
+      label: doctor output
+      description: "Run `npx github:salahuddinuqaili/agy-slack doctor` (redacts tokens) and paste the last lines."

@@ -1,6 +1,6 @@
 # Antigravity
 
-agy-slack is tuned for Google Antigravity CLI and the Antigravity SDK.
+agy-slack is tuned for Google Antigravity CLI, the Antigravity SDK, and Gemini CLI v0.59 (see [GEMINI.md](./GEMINI.md)).
 
 ## Config locations
 

@@ -93,7 +93,7 @@ export class LiveAdapter implements SlackAdapter {
     let cursor: string | undefined;
     do {
       const data = await this.api(this.readToken(), "users.list", {
-        limit: 200,
+        limit: 1000,
         cursor,
       });
       for (const raw of (data.members as Record<string, unknown>[] | undefined) ?? []) {
@@ -132,7 +132,7 @@ export class LiveAdapter implements SlackAdapter {
       const data = await this.api(this.readToken(), "conversations.list", {
         types: "public_channel,private_channel,mpim,im",
         exclude_archived: false,
-        limit: 200,
+        limit: 1000,
         cursor,
       });
       for (const raw of (data.channels as Record<string, unknown>[] | undefined) ?? []) {

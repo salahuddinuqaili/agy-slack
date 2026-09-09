@@ -13,13 +13,22 @@
 ```bash
 npm install
 npm test
+npm run typecheck
 npm run build
 ```
 
 Demo adapter tests do not need a Slack token.
+
+The 1,000-user suite lives in `src/core/crowd.test.ts` (`makeCrowd()` in `src/core/crowd.ts`). If you touch `resolve.ts`, that suite is the contract:
+
+- Unique handles, emails, and U-ids resolve.
+- `@Alex` with a collision cluster is **ambiguous**, not a silent pick.
+- Unicode and dotted handles still match.
+- `#eng` still works beside 1,000 extra people.
 
 ## Pull requests
 
 - Keep the tool catalog (`src/core/catalog.ts`) as the single source of descriptions.
 - If you add a write, it must go through `gateWrite`.
 - Do not log tokens, cookies, or authorization headers.
+- Run `npm test` — it includes the crowd suite.

@@ -1,7 +1,7 @@
 {
   "name": "agy-slack",
-  "version": "1.0.0",
-  "description": "The Slack MCP purpose-built for Google Antigravity CLI. Agent-native tools, entity resolution, safety modes, one-command install.",
+  "version": "1.1.0",
+  "description": "Slack MCP for Google Antigravity CLI and Gemini CLI v0.59. Agent-native tools, entity resolution, safety modes, one-command install.",
   "type": "module",
   "license": "MIT",
   "author": "Salahuddin Uqaili",
@@ -21,7 +21,8 @@
     "agy",
     "cli",
     "ai-agent",
-    "google-antigravity"
+    "google-antigravity",
+    "google-gemini-cli"
   ],
   "bin": {
     "agy-slack": "./dist/index.js",
@@ -46,6 +47,7 @@
     "serve": "node dist/index.js serve",
     "demo": "node dist/index.js serve --demo",
     "test": "tsx --test src/core/*.test.ts src/install.test.ts",
+    "test:crowd": "tsx --test src/core/crowd.test.ts",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "prepublishOnly": "npm run build && npm test"
   },

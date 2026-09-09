@@ -80,8 +80,8 @@ async function runDoctor(argv: string[]) {
 async function runInstall(argv: string[]) {
   const flags = parseFlags(argv);
   const client = (flags.client as ClientId) || "antigravity";
-  if (!["antigravity", "claude", "cursor", "all"].includes(client)) {
-    throw new Error(`Unknown client ${client}. Use antigravity | claude | cursor | all.`);
+  if (!["antigravity", "gemini", "claude", "cursor", "all"].includes(client)) {
+    throw new Error(`Unknown client ${client}. Use antigravity | gemini | claude | cursor | all.`);
   }
   const result = await installClient({
     client,
@@ -91,14 +91,15 @@ async function runInstall(argv: string[]) {
     userToken: process.env.SLACK_USER_TOKEN,
     mode: process.env.SLACK_MCP_MODE || "confirm",
   });
+  const extra = result.hints.length ? `\n\n${result.hints.join("\n")}` : "";
   process.stdout.write(
-    `Installed agy-slack for ${client}.\n\nWrote:\n${result.files.map((f) => `  ${f}`).join("\n")}\n\nReload MCP in the client (/mcp in Antigravity CLI), then ask: catch me up on Slack.\n`,
+    `Installed agy-slack for ${client}.\n\nWrote:\n${result.files.map((f) => `  ${f}`).join("\n")}${extra}\n\nThen ask: catch me up on Slack.\n`,
   );
 }
 
 function runSnippet(argv: string[]) {
   const flags = parseFlags(argv);
-  const client = (flags.client as "antigravity" | "claude" | "cursor") || "antigravity";
+  const client = (flags.client as "antigravity" | "gemini" | "claude" | "cursor") || "antigravity";
   process.stdout.write(
     `${snippetFor(client, {
       client,
@@ -146,20 +147,20 @@ function parseFlags(argv: string[]) {
 
 function printHelp() {
   process.stdout.write(`agy-slack ${SERVER_VERSION}
-Slack MCP purpose-built for Google Antigravity CLI.
+Slack MCP for Google Antigravity CLI and Gemini CLI v0.59.
 
 Usage
-  npx github:salahuddinuqaili/agy-slack serve
   npx github:salahuddinuqaili/agy-slack install --client antigravity
+  npx github:salahuddinuqaili/agy-slack install --client gemini
   npx github:salahuddinuqaili/agy-slack doctor
   npx github:salahuddinuqaili/agy-slack demo
 
 Commands
   serve       Start MCP (stdio default; --http --port 8787)
-  install     Write Antigravity / Claude / Cursor config
+  install     Write Antigravity / Gemini / Claude / Cursor config
   doctor      Check tokens, scopes, mode
   demo        Serve the Northstar demo workspace (no Slack token)
-  snippet     Print a config JSON blob
+  snippet     Print a config JSON blob (--client gemini|antigravity|…)
   help        This text
 
 Environment
@@ -170,10 +171,16 @@ Environment
   SLACK_MCP_TZ         IANA timezone
   SLACK_MCP_ALLOW_CHANNELS / SLACK_MCP_DENY_CHANNELS
 
-Antigravity
-  Global config:   ~/.gemini/config/mcp_config.json
-  Workspace:       .agents/mcp_config.json
-  Reload:          type /mcp in the CLI
+Antigravity CLI
+  Config:   ~/.gemini/config/mcp_config.json
+  HTTP key: serverUrl
+  Reload:   /mcp
+
+Gemini CLI v0.59
+  Config:   ~/.gemini/settings.json   (project: .gemini/settings.json)
+  HTTP key: httpUrl
+  Reload:   /mcp   or   gemini mcp list
+  Native:   gemini mcp add -s user -e SLACK_USER_TOKEN=$SLACK_USER_TOKEN --timeout 60000 agy-slack npx -- -y github:salahuddinuqaili/agy-slack
 
 Docs  https://github.com/salahuddinuqaili/agy-slack
 `);

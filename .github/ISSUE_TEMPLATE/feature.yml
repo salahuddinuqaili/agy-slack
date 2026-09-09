@@ -1,0 +1,28 @@
+name: Feature request
+description: A tool, argument, or client path that is missing.
+title: "[feat] "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: job
+    attributes:
+      label: What is the agent trying to do?
+      description: "The job, not the Slack API method. Example — 'catch up on a private incident channel I am not a member of'."
+    validations:
+      required: true
+  - type: dropdown
+    id: existing
+    attributes:
+      label: Can an existing tool grow an argument instead?
+      description: We would rather add `since` to slack_read than a 16th tool.
+      options:
+        - "Yes, probably"
+        - "No — this is a new job"
+        - "Not sure"
+    validations:
+      required: true
+  - type: textarea
+    id: shape
+    attributes:
+      label: Proposed shape
+      description: Tool name, arguments, and what the model should see as output.
