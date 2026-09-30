@@ -13,10 +13,7 @@ Names not IDs, confirm before send. Public, MIT, published to npm. Owner: Sal.
 - Commits are authored as **salahuddinuqaili**. Never commit as thebotgrok.
 - **Confirm before commit:** show the diff and wait for Sal's OK before any new commit.
 - Never force-push the default branch. Never commit secrets or `.env` files.
-- Do not read or reference walled material: per-x (Atlas), vault-X / grokbot-vault
-  (vault), synapse-os (client), any DH / work-kris repo.
-- Canonical Sapne root is `C:\Users\salahuddin\projects`. The old drive-root
-  projects folder is retired: do not use it.
+- Walled repos are listed in the private walls register; never read or reference them.
 - Product rule: every write tool (send / edit / delete / react) defaults to
   **confirm mode** and returns a preview first. Never change that default.
 - Never use a real Slack token in tests or examples. Use the demo workspace
